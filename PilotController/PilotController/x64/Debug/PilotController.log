@@ -1,0 +1,13 @@
+﻿  Compiling CUDA source file kernel.cu...
+  
+  F:\F\Programmes\VS2015\PilotController\PilotController>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "F:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu  -I"F:\Program Files (x86)\Visual Leak Detector\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MDd " -o x64\Debug\kernel.cu.obj "F:\F\Programmes\VS2015\PilotController\PilotController\kernel.cu" 
+F:/F/Programmes/VS2015/PilotController/PilotController/kernel.cu(63): warning : dynamic initialization in unreachable code
+F:/F/Programmes/VS2015/PilotController/PilotController/kernel.cu(63): warning : dynamic initialization in unreachable code
+  kernel.cu
+  NetMath.cpp
+  PilotController.vcxproj -> F:\F\Programmes\VS2015\PilotController\x64\Debug\PilotController.exe
+  PilotController.vcxproj -> F:\F\Programmes\VS2015\PilotController\x64\Debug\PilotController.pdb (Full PDB)
+  copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\cudart*.dll" "F:\F\Programmes\VS2015\PilotController\x64\Debug\"
+  C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\cudart32_91.dll
+  C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\cudart64_91.dll
+          2 fichier(s) copié(s).
