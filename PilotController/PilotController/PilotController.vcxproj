@@ -89,13 +89,16 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\CommandModelInterface\CommandModelInterface\CommandModelInterface.h" />
+    <ClInclude Include="Configuration.h" />
     <ClInclude Include="NetMath.h" />
+    <ClInclude Include="Neurone.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\CommandModelInterface\CommandModelInterface\CommandModelInterface.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NetMath.cpp" />
+    <ClCompile Include="Neurone.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

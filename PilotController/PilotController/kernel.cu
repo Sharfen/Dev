@@ -1,7 +1,6 @@
 
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
-#include "NetMath.h"
+
+#include "Network.h"
 #include <iostream>
 #include <Windows.h>
 
@@ -15,6 +14,70 @@ __global__ void addKernel(int *c, const int *a, const int *b)
     c[i] = a[i] + b[i];
 }
 
+
+void testSimpleSigmoid() {
+	NetMath::Sigmoid *sig = new NetMath::Sigmoid(1.0, 10.0, -10.0);
+	NetMath::Sigmoid target(1.0, 0.0, -1.0);
+	const int tabSize = 11;
+	nm_float x[tabSize] = { -2.0, -1.5, -1.0, -0.5, -0.1, 0.0, 0.1, 0.5, 1.0, 1.5, 2.0 };
+	nm_float t[tabSize];
+	for (int i = 0; i < tabSize; i++) {
+		t[i] = target.getSigmoid(x[i]);
+	}
+	std::cout << NetMath::Sigmoid::distance(*sig, target) << std::endl;
+	for (int i = 0; i < 1; i++) {
+
+		NetMath::MethodMultiGradient(sig, 1, x, t, tabSize, 0.0001, 0.0000001, 0.1);
+		std::cout << NetMath::Sigmoid::distance(*sig, target) << std::endl;
+		sig->getTheta();
+		for (int i = 0; i < tabSize; i++) {
+			std::cout << target.getSigmoid(x[i]) << " " << sig->getSigmoid(x[i]) << std::endl;
+		}
+	}
+	delete sig;
+}
+
+void testNetwork() {
+	Network net;
+	DimensionNetwork dim;
+	dim.addLayer(5);
+	dim.addLayer(4);
+}
+
+void testParallelSigmoid() {
+
+	NetMath::Sigmoid *sig(NULL);
+	NetMath::Sigmoid target(1.0, 0.0, -1.0);
+	const int tabSize = 11;
+	nm_float x[tabSize] = { -2.0, -1.5, -1.0, -0.5, -0.1, 0.0, 0.1, 0.5, 1.0, 1.5, 2.0 };
+	nm_float t[tabSize];
+	const int nsig = 6;
+	sig = new NetMath::Sigmoid[nsig];
+	for (int i = 0; i < nsig; i++) {
+		sig[i].setTheta(1.0, 2.0 *i / (nsig - 1) - 1.0, 1.0 * i / (nsig - 1) - 0.5);
+		sig[i].getTheta();
+	}
+	for (int i = 0; i < tabSize; i++) {
+		t[i] = x[i] * x[i];
+	}
+	for (int i = 0; i < 1; i++) {
+
+		NetMath::MethodMultiGradient(sig, nsig, x, t, tabSize, 0.0001, 0.0000001, 0.5);
+		//std::cout << NetMath::Sigmoid::distance(*sig, target) << std::endl;
+		//sig->getTheta();
+		for (int i = 0; i < tabSize; i++) {
+			NetMath::Set(sig, nsig, x[i]);
+			std::cout << t[i] << " " << NetMath::Value(sig, nsig) << std::endl;
+		}
+		for (int i = 0; i < nsig; i++) {
+			sig[i].getTheta();
+		}
+	}
+	delete[] sig;
+	system("pause");
+}
+
+
 int main()
 {
     const int arraySize = 5;
@@ -22,43 +85,8 @@ int main()
     const int b[arraySize] = { 10, 20, 30, 40, 50 };
     int c[arraySize] = { 0 };
 
-	NetMath::Sigmoid *sig = new NetMath::Sigmoid(-100.0, 0.0, 100.0);
-	NetMath::Sigmoid target(-1.0, 0.0, 1.0);
-	const int tabSize = 7;
-	nm_float x[tabSize] = { -7.0, -3.0, -1.0, 0.0, 1.0, 3.0, 7.0 };
-	nm_float t[tabSize];
-	for (int i = 0; i < tabSize; i++) {
-		t[i] = target.getSigmoid(x[i]);
-	}
-	std::cout << NetMath::Sigmoid::distance(*sig, target) << std::endl;
-	for(int i = 0; i < 1; i++) {
-
-		NetMath::MethodMultiGradient(sig, 1, x, t, tabSize, 0.0001, 0.00000001, 0.1);
-		std::cout << NetMath::Sigmoid::distance(*sig, target) << std::endl;
-		sig->getTheta();
-		for (int i = 0; i < tabSize; i++) {
-			std::cout << target.getSigmoid(x[i]) << " " << sig->getSigmoid(x[i]) << std::endl;
-		}
-		/*
-		target.set(x);
-		sig->set(x);
-		std::cout << "preval " <<  x << " " << target() << " " << (*sig)() << std::endl;
-		NetMath::MethodGradient(sig, 1, target(), 0.00001, 0.1);
-		std::cout << "dist " << NetMath::Sigmoid::distance(*sig, target) << std::endl;
-		std::cout << "postval " << x << " " << target() << " " << (*sig)() << std::endl;
-		sig->getTheta();
-		x += 0.01;
-		/*
-		if(x>0.0)
-			x /= 2.0;
-		x *= -1.0;
-		*/
-	}
-	delete sig;
-	system("pause");
-
-	return 0;
-
+	testParallelSigmoid();
+	
     // Add vectors in parallel.
     cudaError_t cudaStatus = addWithCuda(c, a, b, arraySize);
     if (cudaStatus != cudaSuccess) {
@@ -128,7 +156,7 @@ cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size)
     }
 
     // Launch a kernel on the GPU with one thread for each element.
-    addKernel<<<1, size>>>(dev_c, dev_a, dev_b);
+    addKernel<<<1, size, 1>>>(dev_c, dev_a, dev_b);
 
     // Check for any errors launching the kernel
     cudaStatus = cudaGetLastError();

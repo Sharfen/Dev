@@ -1,17 +1,22 @@
 #include "NetMath.h"
 
 
-NetMath::Sigmoid::Sigmoid()
+CUDA_CALLABLE_MEMBER NetMath::Sigmoid::Sigmoid()
 {
 }
 
-NetMath::Sigmoid::Sigmoid(const nm_float & alpha, const nm_float & beta, const nm_float & gamma)
+CUDA_CALLABLE_MEMBER NetMath::Sigmoid::Sigmoid(const nm_float & alpha, const nm_float & beta, const nm_float & gamma)
 {
 	theta = { alpha, beta, gamma };
 }
 
-NetMath::Sigmoid::~Sigmoid()
+CUDA_CALLABLE_MEMBER NetMath::Sigmoid::~Sigmoid()
 {
+}
+
+void NetMath::Sigmoid::setTheta(const nm_float & alpha, const nm_float & beta, const nm_float & gamma)
+{
+	theta = { alpha, beta, gamma };
 }
 
 void NetMath::Sigmoid::getTheta() const
