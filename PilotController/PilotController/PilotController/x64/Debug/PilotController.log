@@ -1,0 +1,28 @@
+﻿  Compiling CUDA source file kernel.cu...
+  
+  F:\F\Programmes\VS2015\PilotController\PilotController>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "F:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu  -I"F:\Program Files (x86)\Visual Leak Detector\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MDd " -o x64\Debug\kernel.cu.obj "F:\F\Programmes\VS2015\PilotController\PilotController\kernel.cu" 
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(131): warning : address of a host variable "std::cout" cannot be directly taken in a device function
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(133): warning : address of a host variable "std::cout" cannot be directly taken in a device function
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(125): warning : calling a __host__ function from a __host__ __device__ function is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(130): warning : calling a __host__ function from a __host__ __device__ function is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(131): warning : calling a __host__ function from a __host__ __device__ function is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(139): warning : variable "count" was declared but never referenced
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(147): warning : calling a __host__ function from a __host__ __device__ function is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(151): warning : calling a __host__ function from a __host__ __device__ function is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(140): warning : calling a __host__ function("NetMath::_NV_ANON_NAMESPACE::MultiGradDistance") from a __host__ __device__ function("NetMath::MethodMultiGradient") is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(143): warning : calling a __host__ function("NetMath::Sigmoid::resetMultiGrad") from a __host__ __device__ function("NetMath::MethodMultiGradient") is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(147): warning : calling a __host__ function("NetMath::Set") from a __host__ __device__ function("NetMath::MethodMultiGradient") is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(148): warning : calling a __host__ function("NetMath::_NV_ANON_NAMESPACE::GradLengh") from a __host__ __device__ function("NetMath::MethodMultiGradient") is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(151): warning : calling a __host__ function("NetMath::Value") from a __host__ __device__ function("NetMath::MethodMultiGradient") is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(153): warning : calling a __host__ function("NetMath::_NV_ANON_NAMESPACE::AddMultiGrad") from a __host__ __device__ function("NetMath::MethodMultiGradient") is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(156): warning : calling a __host__ function("NetMath::_NV_ANON_NAMESPACE::MoveMultiGrad") from a __host__ __device__ function("NetMath::MethodMultiGradient") is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(157): warning : calling a __host__ function("NetMath::_NV_ANON_NAMESPACE::MultiGradDistance") from a __host__ __device__ function("NetMath::MethodMultiGradient") is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(158): warning : calling a __host__ function("NetMath::_NV_ANON_NAMESPACE::Steepness") from a __host__ __device__ function("NetMath::MethodMultiGradient") is not allowed
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h(139): warning : variable "count" was declared but never referenced
+  kernel.cu
+  PilotController.vcxproj -> F:\F\Programmes\VS2015\PilotController\x64\Debug\PilotController.exe
+  PilotController.vcxproj -> F:\F\Programmes\VS2015\PilotController\x64\Debug\PilotController.pdb (Full PDB)
+  copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\cudart*.dll" "F:\F\Programmes\VS2015\PilotController\x64\Debug\"
+  C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\cudart32_91.dll
+  C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\cudart64_91.dll
+          2 fichier(s) copié(s).
