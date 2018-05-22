@@ -12,8 +12,11 @@ Contains defines for pre-processor options
 // Flag for cuda usage
 
 #define __USE_CUDA__
+
 #ifdef __USE_CUDA__
+
 #define CUDA_CALLABLE_MEMBER __host__ __device__
+#define CUDA_ERROR cudaError_t
 
 #define THREADS_PER_BLOCK          256
 #if __CUDA_ARCH__ >= 200
@@ -26,5 +29,6 @@ Contains defines for pre-processor options
 
 #else
 #define CUDA_CALLABLE_MEMBER
+#define CUDA_ERROR int
 #endif
 
