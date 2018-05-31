@@ -30,12 +30,12 @@ nm_float NetMath::Sigmoid::getSigmoid(const nm_float & x)
 	return last_sig;
 }
 
-nm_float NetMath::Sigmoid::operator()() const
+CUDA_CALLABLE_MEMBER nm_float NetMath::Sigmoid::operator()() const
 {
 	return last_sig;
 }
 
-void NetMath::Sigmoid::set(const nm_float & x)
+CUDA_CALLABLE_MEMBER void NetMath::Sigmoid::set(const nm_float & x)
 {
 	last_x = x;
 	recomputeSigmoid();

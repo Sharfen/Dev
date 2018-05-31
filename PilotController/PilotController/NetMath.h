@@ -32,8 +32,8 @@ namespace NetMath {
 		void setTheta(const nm_float &alpha, const nm_float &beta, const nm_float &gamma);
 		void getTheta() const;
 		nm_float getSigmoid(const nm_float &x);
-		nm_float operator()() const;
-		void set(const nm_float &x);
+		CUDA_CALLABLE_MEMBER nm_float operator()() const;
+		CUDA_CALLABLE_MEMBER void set(const nm_float &x);
 		void recomputeSigmoid();
 		void grad();
 		void powGrad(const int & p);

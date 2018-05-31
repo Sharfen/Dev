@@ -327,6 +327,7 @@ c:\program files\nvidia gpu computing toolkit\cuda\v9.1\include\host_defines.h
 c:\program files\nvidia gpu computing toolkit\cuda\v9.1\include\crt/host_defines.h
 c:\program files\nvidia gpu computing toolkit\cuda\v9.1\include\device_launch_parameters.h
 c:\program files\nvidia gpu computing toolkit\cuda\v9.1\include\vector_types.h
+f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\Network.h
 f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\NetMath.h
 f:\f\programmes\vs2015\pilotcontroller\pilotcontroller\Configuration.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\cuda_runtime.h
@@ -408,6 +409,10 @@ F:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xfacet
 F:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\system_error
 F:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cerrno
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\share.h
+F:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\string
+F:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\vector
+F:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xmemory
+F:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\fstream
 C:\Program Files (x86)\Windows Kits\8.1\Include\um\Windows.h
 C:\Program Files (x86)\Windows Kits\8.1\Include\shared\winapifamily.h
 C:\Program Files (x86)\Windows Kits\8.1\Include\shared\sdkddkver.h

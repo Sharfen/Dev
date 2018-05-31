@@ -59,6 +59,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <AdditionalDeps>Network.cu;%(AdditionalDeps)</AdditionalDeps>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -86,11 +87,14 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <CudaCompile Include="kernel.cu" />
+    <CudaCompile Include="Kernels.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\CommandModelInterface\CommandModelInterface\CommandModelInterface.h" />
     <ClInclude Include="Configuration.h" />
+    <ClInclude Include="Kernels.h" />
     <ClInclude Include="NetMath.h" />
+    <ClInclude Include="Network.h" />
     <ClInclude Include="Neurone.h" />
   </ItemGroup>
   <ItemGroup>
@@ -98,7 +102,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NetMath.cpp" />
-    <ClCompile Include="Neurone.cpp" />
+    <ClCompile Include="Network.cpp" />
+    <ClCompile Include="Neurone.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,7 +4,6 @@
 #include <iostream>
 #include <Windows.h>
 
-#include <stdio.h>
 
 cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size);
 
@@ -39,17 +38,18 @@ void testSimpleSigmoid() {
 
 void testNetwork() {
 	Network net;
-	DimensionNetwork dim;
-	dim.addLayer(5);
-	dim.addLayer(4);
+	net.addDimension(-5);
+	net.addDimension(4);
+	net.addDimension(6);
+	net.createNetwork();
 }
 
 void testParallelSigmoid() {
 
 	NetMath::Sigmoid *sig(NULL);
 	NetMath::Sigmoid target(1.0, 0.0, -1.0);
-	const int tabSize = 11;
-	nm_float x[tabSize] = { -2.0, -1.5, -1.0, -0.5, -0.1, 0.0, 0.1, 0.5, 1.0, 1.5, 2.0 };
+	const int tabSize = 13;
+	nm_float x[tabSize] = { -3.0, -2.0, -1.5, -1.0, -0.5, -0.1, 0.0, 0.1, 0.5, 1.0, 1.5, 2.0, 3.0 };
 	nm_float t[tabSize];
 	const int nsig = 6;
 	sig = new NetMath::Sigmoid[nsig];
@@ -73,6 +73,16 @@ void testParallelSigmoid() {
 			sig[i].getTheta();
 		}
 	}
+	nm_float sharp_x(-3.0), err(0.0);
+	for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < tabSize; i++) {
+			NetMath::Set(sig, nsig, sharp_x);
+			err += fabsf(NetMath::Value(sig, nsig) - sharp_x*sharp_x);
+		}
+		sharp_x += 6.0 / 1000;
+	}
+	err /= 1000;
+	std::cout << "err avg : " << err << std::endl;
 	delete[] sig;
 	system("pause");
 }
@@ -85,8 +95,10 @@ int main()
     const int b[arraySize] = { 10, 20, 30, 40, 50 };
     int c[arraySize] = { 0 };
 
-	testParallelSigmoid();
-	
+	//testParallelSigmoid();
+	testNetwork();
+	system("pause");
+
     // Add vectors in parallel.
     cudaError_t cudaStatus = addWithCuda(c, a, b, arraySize);
     if (cudaStatus != cudaSuccess) {
