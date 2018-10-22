@@ -4,6 +4,7 @@
 #include "Configuration.h"
 #define nm_float double
 #define nm_int int
+#define uint unsigned int
 #include <iostream>
 
 namespace NetMath {
@@ -28,13 +29,22 @@ namespace NetMath {
 		CUDA_CALLABLE_MEMBER Sigmoid();
 		CUDA_CALLABLE_MEMBER Sigmoid(const nm_float &alpha, const nm_float &beta, const nm_float &gamma);
 		CUDA_CALLABLE_MEMBER ~Sigmoid();
+		void setupSigmoid();
 
 		void setTheta(const nm_float &alpha, const nm_float &beta, const nm_float &gamma);
 		void getTheta() const;
 		nm_float getSigmoid(const nm_float &x);
-		CUDA_CALLABLE_MEMBER nm_float operator()() const;
-		CUDA_CALLABLE_MEMBER void set(const nm_float &x);
-		void recomputeSigmoid();
+		CUDA_CALLABLE_MEMBER nm_float operator()() const {
+			return last_sig;
+		}
+
+		CUDA_CALLABLE_MEMBER void set(const nm_float &x) {
+			last_x = x;
+			recomputeSigmoid();
+		}
+		CUDA_CALLABLE_MEMBER void recomputeSigmoid() {
+			last_sig = theta.alpha / (1.0 + exp(-1.0*theta.gamma * (last_x - theta.beta)));
+		}
 		void grad();
 		void powGrad(const int & p);
 		void resetMultiGrad();

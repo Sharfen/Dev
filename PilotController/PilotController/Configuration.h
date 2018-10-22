@@ -40,12 +40,13 @@ Contains defines for pre-processor options
 #include <iostream>
 #include <string>
 
-enum LOG_LEVEL { INFO=0, DEBUG=1, ERROR=2, FATAL=3 };
-
-#define CURRENT_LOG_LEVEL INFO
+enum LOG_LEVEL { DEBUG_OLD = 0, DEBUG=1, INFO = 2, ERROR=3, FATAL=4 };
 
 namespace {
-	const char *LOG_LEVEL_STR[4] = { "INFO", "DEBUG", "ERROR", "FATAL" };
+	
+	LOG_LEVEL log_level = DEBUG;
+
+	const char *LOG_LEVEL_STR[5] = { "DEBUG_OLD", "DEBUG", "INFO", "ERROR", "FATAL" };
 	void Log() {
 		std::cout << std::endl;
 	}
@@ -61,7 +62,9 @@ namespace {
 
 template<typename ... Strings>
 void Log(const LOG_LEVEL &level, const Strings&... rest) {
-	std::cout << "LOG [" << LOG_LEVEL_STR[level] << "] \t: ";
-	Log(rest...);
+	if(level>=log_level){
+		std::cout << "LOG [" << LOG_LEVEL_STR[level] << "] \t: ";
+		Log(rest...);
+	}
 }
 

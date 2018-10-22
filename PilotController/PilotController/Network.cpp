@@ -3,7 +3,6 @@
 
 
 Network::Network() : locked(false),
-d_dimension(NULL), 
 d_sig(NULL),
 d_neu(NULL),
 input(NULL), 
@@ -53,6 +52,12 @@ CUDA_ERROR Network::createNetwork()
 		return cudaStatus;
 	}
 
+	cudaStatus = setupSigmoids();
+	if (cudaStatus != CUDA_SUCCESS) {
+		Log(ERROR, "unable to set sigmoids");
+		return cudaStatus;
+	}
+
 	Log(INFO, "network created");
 	return cudaStatus;
 }
@@ -95,6 +100,24 @@ int Network::addDimension(const int & s)
 	return 0;
 }
 
+CUDA_ERROR Network::test()
+{
+	copyInput();
+	propagate();
+	
+	return copyOutput();
+}
+
+int Network::getInputSize() const
+{
+	return input_size;
+}
+
+int Network::getOutputSize() const
+{
+	return output_size;
+}
+
 CUDA_ERROR Network::preCheck()
 {
 	cudaError_t cudaStatus;
@@ -116,100 +139,123 @@ CUDA_ERROR Network::createDimension()
 {
 	cudaError_t cudaStatus;
 
-	dimension.size = size.size();
-	dimension.in_size = size[0];
-	dimension.out_size = size[size.size() - 1];
-	dimension.cur_layer = 0;
+	// Set parameters on host
 
-	cudaStatus = cudaMalloc((void**)&d_dimension, sizeof(Dimension));
+	dimension.param.size = size.size();
+	dimension.param.sig_size = 0;
+	for (int i = 1; i < dimension.param.size; i++)
+		dimension.param.sig_size += size[i - 1] * size[i];
+	dimension.param.in_size = size[0];
+	dimension.param.out_size = size[size.size() - 1];
+	dimension.param.cur_layer = 0;
+
+	// Set layers parameters on host
+
+	int s = dimension.param.size;
+
+	dimension.value = new int[dimension.param.size];
+	for (int i = 0; i < s; i++)
+		dimension.value[i] = size[i];
+
+	dimension.pitch = new int[dimension.param.size];
+	dimension.pitch[0] = 0;
+	for (int i = 1; i < s; i++)
+		dimension.pitch[i] = dimension.pitch[i - 1] + size[i - 1];
+
+	dimension.sig_value = new int[dimension.param.size];
+	for (int i = 0; i < s - 1; i++)
+		dimension.sig_value[i] = size[i] * size[i + 1];
+
+	dimension.sig_pitch = new int[dimension.param.size];
+	dimension.sig_pitch[0] = 0;
+	for (int i = 1; i < s; i++)
+		dimension.sig_pitch[i] = dimension.sig_pitch[i - 1] + size[i - 1] * size[i];
+
+	// Allocate parameters & layer parameters on device
+
+	cudaStatus = cudaMalloc((void**)&dimension.d_param, sizeof(Dimension::Parameter));
 	if (cudaStatus != CUDA_SUCCESS) {
-		Log(ERROR, "failed to allocate dimension");
+		Log(ERROR, "failed to allocate parameters");
 		return cudaStatus;
 	}
 
-	int s = size.size();
-
-	cudaStatus = cudaMalloc((void**)&dimension.value, s * sizeof(int));
+	cudaStatus = cudaMalloc((void**)&dimension.d_value, s * sizeof(int));
 	if (cudaStatus != CUDA_SUCCESS) {
 		Log(ERROR, "failed to allocate value");
 		return cudaStatus;
 	}
 
-	int *v = new int[s];
-	for (int i = 0; i < s; i++)
-		v[i] = size[i];
-
-	cudaStatus = cudaMemcpy(dimension.value, &v, s*sizeof(int), cudaMemcpyHostToDevice);
-	if (cudaStatus != CUDA_SUCCESS) {
-		Log(ERROR, "failed to set value");
-		return cudaStatus;
-	}
-
-	cudaStatus = cudaMalloc((void**)&dimension.pitch, s * sizeof(int));
+	cudaStatus = cudaMalloc((void**)&dimension.d_pitch, s * sizeof(int));
 	if (cudaStatus != CUDA_SUCCESS) {
 		Log(ERROR, "failed to allocate pitch");
 		return cudaStatus;
 	}
 
-	v[0] = 0;
-	for (int i = 1; i < s; i++)
-		v[i] = v[i-1] + size[i-1];
+	cudaStatus = cudaMalloc((void**)&dimension.d_sig_value, s * sizeof(int));
+	if (cudaStatus != CUDA_SUCCESS) {
+		Log(ERROR, "failed to allocate sig_pitch");
+		return cudaStatus;
+	}
 
-	cudaStatus = cudaMemcpy(dimension.pitch, &v, s * sizeof(int), cudaMemcpyHostToDevice);
+	cudaStatus = cudaMalloc((void**)&dimension.d_sig_pitch, s * sizeof(int));
+	if (cudaStatus != CUDA_SUCCESS) {
+		Log(ERROR, "failed to allocate sig_pitch");
+		return cudaStatus;
+	}
+
+	// Copy from host to device
+
+	cudaStatus = cudaMemcpy(dimension.d_param, &dimension.param, sizeof(Dimension::Parameter), cudaMemcpyHostToDevice);
+	if (cudaStatus != CUDA_SUCCESS) {
+		Log(ERROR, "failed to set parameters");
+		return cudaStatus;
+	}
+
+	cudaStatus = cudaMemcpy(dimension.d_value, dimension.value, s*sizeof(int), cudaMemcpyHostToDevice);
+	if (cudaStatus != CUDA_SUCCESS) {
+		Log(ERROR, "failed to set value");
+		return cudaStatus;
+	}
+
+
+	cudaStatus = cudaMemcpy(dimension.d_pitch, dimension.pitch, s * sizeof(int), cudaMemcpyHostToDevice);
 	if (cudaStatus != CUDA_SUCCESS) {
 		Log(ERROR, "failed to set pitch");
 		return cudaStatus;
 	}
 
-	cudaStatus = cudaMalloc((void**)&dimension.sig_value, s * sizeof(int));
-	if (cudaStatus != CUDA_SUCCESS) {
-		Log(ERROR, "failed to allocate sig_pitch");
-		return cudaStatus;
-	}
-
-	for (int i = 0; i < s-1; i++)
-		v[i] = size[i] * size[i+1];
-
-	cudaStatus = cudaMemcpy(dimension.sig_value, &v, s * sizeof(int), cudaMemcpyHostToDevice);
+	cudaStatus = cudaMemcpy(dimension.d_sig_value, dimension.sig_value, s * sizeof(int), cudaMemcpyHostToDevice);
 	if (cudaStatus != CUDA_SUCCESS) {
 		Log(ERROR, "failed to set sig_pitch");
 		return cudaStatus;
 	}
 
-	cudaStatus = cudaMalloc((void**)&dimension.sig_pitch, s * sizeof(int));
-	if (cudaStatus != CUDA_SUCCESS) {
-		Log(ERROR, "failed to allocate sig_pitch");
-		return cudaStatus;
-	}
-
-	v[0] = 0;
-	for (int i = 1; i < s; i++)
-		v[i] = v[i - 1] + size[i - 1] * size[i];
-
-	cudaStatus = cudaMemcpy(dimension.sig_pitch, &v, s * sizeof(int), cudaMemcpyHostToDevice);
+	cudaStatus = cudaMemcpy(dimension.d_sig_pitch, dimension.sig_pitch, s * sizeof(int), cudaMemcpyHostToDevice);
 	if (cudaStatus != CUDA_SUCCESS) {
 		Log(ERROR, "failed to set sig_pitch");
 		return cudaStatus;
 	}
 
-	cudaStatus = cudaMemcpy(d_dimension, &dimension, sizeof(Dimension), cudaMemcpyHostToDevice);
-	if (cudaStatus != CUDA_SUCCESS) {
-		Log(ERROR, "failed to set dimension");
-		return cudaStatus;
-	}
+	//KernelChecker::checkDimension(d_dimension);
+
+	Log(INFO, "dimension created");
 
 	return CUDA_SUCCESS;
 }
 
 CUDA_ERROR Network::deleteDimension()
 {
-	if (d_dimension != NULL) {
-		cudaFree(dimension.value);
-		cudaFree(dimension.pitch);
-		cudaFree(dimension.sig_value);
-		cudaFree(dimension.sig_pitch);
-		cudaFree(d_dimension);
-	}
+		cudaFree(dimension.d_value);
+		cudaFree(dimension.d_pitch);
+		cudaFree(dimension.d_sig_value);
+		cudaFree(dimension.d_sig_pitch);
+		cudaFree(dimension.d_param);
+
+	delete[] dimension.value;
+	delete[] dimension.pitch;
+	delete[] dimension.sig_value;
+	delete[] dimension.sig_pitch;
+
 	return CUDA_SUCCESS;
 }
 
@@ -225,6 +271,8 @@ CUDA_ERROR Network::createNeurones()
 		s += *it;
 	out_layer_offset = s - output_size;
 
+	Log(INFO, "allocate neurone board of ", s);
+
 	return cudaMalloc((void**)&d_neu, s * sizeof(nm_float));
 }
 
@@ -237,17 +285,34 @@ CUDA_ERROR Network::deleteNeurones()
 
 CUDA_ERROR Network::createSigmoids()
 {
-	int s(0);
+	Log(INFO, "allocate sigmoid board of ", dimension.param.sig_size);
 
-	for (int i = 1; i < size.size(); i++)
-		s += size[i - 1] * size[i];
-
-	return cudaMalloc((void**)&d_neu, s * sizeof(nm_float));
+	return cudaMalloc((void**)&d_sig, dimension.param.sig_size * sizeof(NetMath::Sigmoid));
 }
 
 CUDA_ERROR Network::deleteSigmoids()
 {
 	return cudaFree(d_sig);
+}
+
+CUDA_ERROR Network::setupSigmoids()
+{
+	NetMath::Sigmoid *sigmoids = new NetMath::Sigmoid[dimension.param.sig_size];
+	nm_float min_b(-2.0), max_b(2.0), min_g(-2.0), max_g(2.0), b(min_b), g(min_g);
+	for (int i = 0; i < dimension.param.sig_size; i++) {
+		sigmoids[i].setupSigmoid();
+		sigmoids[i].setTheta(1.0, b, g);
+		b += (max_b - min_b) / dimension.param.sig_size;
+		g += (max_g - min_g) / dimension.param.sig_size;
+	}
+	Log(INFO, "copying sigmoids board of ", dimension.param.sig_size);
+	CUDA_ERROR cudaStatus = cudaMemcpy(d_sig, sigmoids, dimension.param.sig_size * sizeof(NetMath::Sigmoid), cudaMemcpyHostToDevice);
+	if (cudaStatus != CUDA_SUCCESS) {
+		Log(ERROR, "failed to set sigmoids");
+		return cudaStatus;
+	}
+	delete[] sigmoids;
+	return cudaStatus;
 }
 
 CUDA_ERROR Network::copyInput()
@@ -262,14 +327,17 @@ CUDA_ERROR Network::copyOutput()
 
 CUDA_ERROR Network::propagate()
 {
-	for (int i = 0; i < dimension.size; i++) {
+	for (int i = 0; i < dimension.param.size; i++) {
 		setLayer(i);
 		if (i != 0) {
-			kernel_propagate_neu<<<1, dimension.value[i], 1 >>>(d_neu, d_sig, d_dimension);
-		} if (i != dimension.size - 1){
-			kernel_propagate_sig<<<1, dimension.sig_value[i], 1 >>>(d_neu, d_sig, d_dimension);
+			KernelCallers::propagate_neu(d_neu, d_sig, dimension.value[dimension.param.cur_layer], dimension.d_param, dimension.d_value, dimension.d_pitch, dimension.d_sig_value);
+		} 
+		if (i != dimension.param.size - 1) {
+			//KernelChecker::propagate_sig(&dimension, dimension.sig_value[dimension.cur_layer]);
+			KernelCallers::propagate_sig(d_neu, d_sig, dimension.sig_value[dimension.param.cur_layer], dimension.d_param, dimension.d_value, dimension.d_pitch, dimension.d_sig_pitch);
 		}
 	}
+	return CUDA_SUCCESS;
 }
 
 CUDA_ERROR Network::setLayer(const int & layer)
@@ -279,9 +347,10 @@ CUDA_ERROR Network::setLayer(const int & layer)
 		Log(ERROR, "no layer nb ", layer);
 		l = 0;
 	}
-	cudaError_t cudaStatus = cudaMemcpy(&d_dimension->cur_layer, &l, sizeof(int), cudaMemcpyDeviceToHost);
+	dimension.param.cur_layer = l;
+	cudaError_t cudaStatus = cudaMemcpy(dimension.d_param, &dimension.param, sizeof(Dimension::Parameter), cudaMemcpyHostToDevice);
 	if (cudaStatus != CUDA_SUCCESS)
-		Log(ERROR, "failed to set layer", l);
+		Log(ERROR, "failed to set layer ", l);
 	return cudaStatus;
 }
 

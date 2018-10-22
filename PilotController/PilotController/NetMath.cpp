@@ -14,6 +14,15 @@ CUDA_CALLABLE_MEMBER NetMath::Sigmoid::~Sigmoid()
 {
 }
 
+void NetMath::Sigmoid::setupSigmoid()
+{
+	theta = { 0.0, 0.0, 0.0 };
+	grad_theta = { 0.0, 0.0, 0.0 };
+	grad_theta = { 0.0, 0.0, 0.0 };
+	last_sig = 0.0;
+	last_x = 0.0;
+}
+
 void NetMath::Sigmoid::setTheta(const nm_float & alpha, const nm_float & beta, const nm_float & gamma)
 {
 	theta = { alpha, beta, gamma };
@@ -28,22 +37,6 @@ nm_float NetMath::Sigmoid::getSigmoid(const nm_float & x)
 {
 	set(x);
 	return last_sig;
-}
-
-CUDA_CALLABLE_MEMBER nm_float NetMath::Sigmoid::operator()() const
-{
-	return last_sig;
-}
-
-CUDA_CALLABLE_MEMBER void NetMath::Sigmoid::set(const nm_float & x)
-{
-	last_x = x;
-	recomputeSigmoid();
-}
-
-void NetMath::Sigmoid::recomputeSigmoid()
-{
-	last_sig = theta.alpha / (1.0 + exp(-1.0*theta.gamma * (last_x - theta.beta)));
 }
 
 void NetMath::Sigmoid::grad()

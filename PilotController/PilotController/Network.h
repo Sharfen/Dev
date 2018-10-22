@@ -16,14 +16,22 @@ class Network
 {
 public:
 	struct Dimension {
-		int size,			// size of arrays
-			in_size,
-			out_size,
-			cur_layer,
-			*value, 		// individual size of layers
+		struct Parameter {
+			int size,			// size of arrays
+				sig_size,
+				in_size,
+				out_size,
+				cur_layer;
+		};
+		Parameter param, *d_param;
+		int	*value, 		// individual size of layers
 			*pitch,			// cumulated size of layers ( pitch[k] = S_0^k-1 value[i] )
 			*sig_value,		// quantity of sigs linking the layers
-			*sig_pitch;		// cumulated pitch for sigmoids ( sig_pitch[k] = S_0^k-1 value[i]*value[i+1] )
+			*sig_pitch,		// cumulated pitch for sigmoids ( sig_pitch[k] = S_0^k-1 value[i]*value[i+1] )
+			*d_value,
+			*d_pitch,
+			*d_sig_value,
+			*d_sig_pitch;
 	};
 
 	Network();
@@ -41,7 +49,16 @@ public:
 	/// Simply add a dimension
 	int addDimension(const int &s);
 
+	// test functions
+	CUDA_ERROR test();
+
+
+	nm_float *input, *output;
+	int getInputSize() const;
+	int getOutputSize() const;
+
 private:
+
 
 	CUDA_ERROR preCheck();
 	CUDA_ERROR postCheck();
@@ -76,10 +93,9 @@ private:
 	std::vector<int> size;
 	
 	bool locked;
-	Dimension dimension, *d_dimension;
+	Dimension dimension;
 	NetMath::Sigmoid *d_sig;
 	nm_float *d_neu;
-	nm_float *input, *output;
 	int out_layer_offset, input_size, output_size;
 	std::fstream executionStack, network;
 };

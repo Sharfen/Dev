@@ -42,6 +42,13 @@ void testNetwork() {
 	net.addDimension(4);
 	net.addDimension(6);
 	net.createNetwork();
+	for (int i = 0; i < net.getInputSize(); i++)
+		net.input[i] = 0;
+	net.test();
+	for (int i = 0; i < net.getOutputSize(); i++)
+		std::cout << net.output[i] << " ";
+	std::cout << std::endl;
+	system("pause");
 }
 
 void testParallelSigmoid() {
@@ -116,6 +123,9 @@ int main()
         fprintf(stderr, "cudaDeviceReset failed!");
         return 1;
     }
+
+
+	system("pause");
 
     return 0;
 }
